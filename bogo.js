@@ -63,6 +63,45 @@ function add_tone_to_char(chr, tone) {
     return result;
 }
 
+function find_mark_target(composition, rule) {
+    for (var i = composition.length - 1; i > -1; i--) {
+        if (composition[i].rule.key == rule.effective_on) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+function process_char(composition, chr, rules) {
+    var applicable_rules = [];
+    rules.forEach(function (rule) {
+        if (rule.key == chr) {
+            applicable_rules.push(rule);
+        }
+    });
+
+    var trans = {
+        rule: {
+            type: Trans.APPENDING,
+            key: chr
+        }
+    }
+
+    for (var i = 0; i < applicable_rules.length; i++) {
+        var rule = applicable_rules[i];
+        if (rule.type == Trans.MARK) {
+            var target_index = find_mark_target(composition, rule);
+            if (target_index != -1) {
+                trans.rule = rule;
+                trans.target = composition[target_index];
+                break;
+            }
+        }
+    }
+
+    composition.push(trans);
+}
+
 function flatten(composition) {
     var canvas = [];
 

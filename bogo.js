@@ -1,3 +1,9 @@
+var Trans = {
+    APPENDING: 0,
+    MARK: 1,
+    TONE: 2
+};
+
 var Mark = {
     NONE: 0,
     HAT: 1,
@@ -55,6 +61,29 @@ function add_tone_to_char(chr, tone) {
         result = chr;
     }
     return result;
+}
+
+function flatten(composition) {
+    var canvas = [];
+
+    composition.forEach(function (trans, index) {
+        switch (trans.rule.type) {
+        case Trans.APPENDING:
+            trans.dest = canvas.length;
+            canvas.push(trans.rule.key);
+            break;
+        case Trans.MARK:
+            var index = trans.target.dest;
+            canvas[index] = add_mark_to_char(canvas[index], trans.rule.effect);
+            break;
+        case Trans.TONE:
+            break;
+        default:
+            break;
+        }
+    });
+
+    return canvas.join('');
 }
 
 (function main() {

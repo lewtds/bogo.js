@@ -39,6 +39,10 @@ var MARKS_MAP = {
     'đ': "d___đ"
 }
 
+function is_vowel(chr) {
+    return VOWELS.indexOf(chr) != -1;
+}
+
 function add_mark_to_char(chr, mark) {
     var result = null;
     if (chr in MARKS_MAP && MARKS_MAP[chr][mark] != '_') {
@@ -66,10 +70,47 @@ function add_tone_to_char(chr, tone) {
 function find_mark_target(composition, rule) {
     for (var i = composition.length - 1; i > -1; i--) {
         if (composition[i].rule.key == rule.effective_on) {
+            return composition[i];
+        }
+    }
+}
+
+function find_rightmost_vowel_indexes(composition) {
+    var vowel_indexes = [];
+    for (var i = composition.length - 1; i > -1 ; i--) {
+        var trans = composition[i];
+
+        if (trans.rule.type == Trans.APPENDING &&
+            is_vowel(trans.rule.key)) {
+            vowel_indexes.unshift(i);
+        }
+    }
+    return vowel_indexes;
+}
+
+function find_next_appending_trans(composition, from_index) {
+    for (var i = from_index; i < composition.length; i++) {
+        if (composition[i].rule.type ==  Trans.APPENDING) {
             return i;
         }
     }
     return -1;
+}
+
+function find_tone_target(composition, rule) {
+    var vowel_indexes = find_rightmost_vowel_indexes(composition);
+
+    if (vowel_indexes.length == 1) {
+        return composition[vowel_indexes[0]];
+    } else if (vowel_indexes.length == 2) {
+        if (find_next_appending_trans(composition, vowel_indexes[1]) != -1) {
+            return vowel_indexes[1];
+        } else {
+            return vowel_indexes[0];
+        }
+    } else if (vowel_indexes.length == 3) {
+        return vowel_indexes[1];
+    }
 }
 
 function process_char(composition, chr, rules) {
@@ -90,12 +131,16 @@ function process_char(composition, chr, rules) {
     for (var i = 0; i < applicable_rules.length; i++) {
         var rule = applicable_rules[i];
         if (rule.type == Trans.MARK) {
-            var target_index = find_mark_target(composition, rule);
-            if (target_index != -1) {
-                trans.rule = rule;
-                trans.target = composition[target_index];
-                break;
-            }
+            var target = find_mark_target(composition, rule);
+
+        } else if (rule.type == Trans.TONE) {
+            var target = find_tone_target(composition, rule);
+        }
+
+        if (target != undefined) {
+            trans.rule = rule;
+            trans.target = target;
+            break;
         }
     }
 
@@ -116,6 +161,8 @@ function flatten(composition) {
             canvas[index] = add_mark_to_char(canvas[index], trans.rule.effect);
             break;
         case Trans.TONE:
+            var index = trans.target.dest;
+            canvas[index] = add_tone_to_char(canvas[index], trans.rule.effect);
             break;
         default:
             break;

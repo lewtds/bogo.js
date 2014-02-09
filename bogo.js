@@ -121,14 +121,16 @@ function find_rightmost_vowels(composition) {
 
 function find_next_appending_trans(composition, trans) {
     var from_index = composition.indexOf(trans);
+    var next_appending_trans = null;
 
     // FIXME: Need not-found guard.
     for (var i = from_index + 1; i < composition.length; i++) {
         if (composition[i].rule.type == Trans.APPENDING) {
-            return i;
+            next_appending_trans = composition[i];
         }
     }
-    return -1;
+
+    return next_appending_trans;
 }
 
 function find_tone_target(composition, rule) {
@@ -139,7 +141,7 @@ function find_tone_target(composition, rule) {
         // cá
         target = vowels[0];
     } else if (vowels.length == 2) {
-        if (find_next_appending_trans(composition, vowels[1]) != -1 ||
+        if (find_next_appending_trans(composition, vowels[1]) != null ||
             flatten(vowels) == 'uo') {
             // nước, thuở
             target = vowels[1];

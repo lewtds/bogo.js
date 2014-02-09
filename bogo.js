@@ -199,12 +199,24 @@ function process_char(composition, chr, rules) {
         var rule = applicable_rules[i];
         if (rule.type == Trans.MARK) {
             var target = find_mark_target(composition, rule);
-
         } else if (rule.type == Trans.TONE) {
             var target = find_tone_target(composition, rule);
         }
 
         if (target != undefined) {
+            // Fix uaw being wrongly processed to muă by skipping
+            // the aw rule. Then the uw rule will be matched later.
+            // Note that this requires the aw rule be placed before
+            // uw in the rule list.
+            if (chr == 'w') {
+                var target_index = composition.indexOf(target);
+                var prev_trans   = composition[target_index - 1];
+                if (target.rule.key     == 'a' &&
+                    prev_trans.rule.key == 'u') {
+                    continue;
+                }
+            }
+
             trans.rule = rule;
             trans.target = target;
             break;

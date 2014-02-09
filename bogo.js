@@ -97,11 +97,13 @@ function add_tone_to_char(chr, tone) {
 }
 
 function find_mark_target(composition, rule) {
+    var target = null;
     for (var i = composition.length - 1; i > -1; i--) {
         if (composition[i].rule.key == rule.effective_on) {
-            return composition[i];
+            target = composition[i];
         }
     }
+    return target;
 }
 
 function find_rightmost_vowels(composition) {

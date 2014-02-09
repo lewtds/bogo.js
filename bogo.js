@@ -130,6 +130,18 @@ function find_tone_target(composition, rule) {
     return composition[target_index];
 }
 
+function refresh_last_tone_target(composition) {
+    // Refresh the tone position of the last Trans.TONE transformation.
+    for (var i = composition.length - 1; i >= 0; i--) {
+        var trans = composition[i];
+        if (trans.rule.type == Trans.TONE) {
+            var new_target = find_tone_target(composition, trans.rule);
+            trans.target = new_target;
+            break;
+        }
+    };
+}
+
 function process_char(composition, chr, rules) {
     var isUpperCase = chr === chr.toUpperCase();
     chr = chr.toLowerCase();
@@ -141,13 +153,15 @@ function process_char(composition, chr, rules) {
         }
     });
 
+    // If none of the applicable_rules can actually be applied then this new
+    // transformation fallbacks to an APPENDING one.
     var trans = {
         rule: {
             type: Trans.APPENDING,
             key: chr
         },
         isUpperCase: isUpperCase
-    }
+    };
 
     for (var i = 0; i < applicable_rules.length; i++) {
         var rule = applicable_rules[i];
@@ -166,6 +180,16 @@ function process_char(composition, chr, rules) {
     }
 
     composition.push(trans);
+
+    // Sometimes, a tone's position in a previous state must be changed to
+    // fit the new state.
+    //
+    // e.g.
+    // prev state: chuyenr  -> chuỷen
+    // this state: chuyenre -> chuyển
+    if (trans.rule.type == Trans.APPENDING) {
+        refresh_last_tone_target(composition);
+    }
 }
 
 function flatten(composition) {

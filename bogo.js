@@ -131,17 +131,28 @@ function find_next_appending_trans(composition, trans) {
 
 function find_tone_target(composition, rule) {
     var vowels = find_rightmost_vowels(composition);
+    var target = null;
 
     if (vowels.length == 1) {
-        var target = vowels[0];
+        // cá
+        target = vowels[0];
     } else if (vowels.length == 2) {
-        if (find_next_appending_trans(composition, vowels[1]) != -1) {
-            var target = vowels[1];
+        if (find_next_appending_trans(composition, vowels[1]) != -1 ||
+            flatten(vowels) == 'uo') {
+            // nước, thuở
+            target = vowels[1];
         } else {
-            var target = vowels[0];
+            // cáo
+            target = vowels[0];
         }
     } else if (vowels.length == 3) {
-        var target = vowels[1];
+        if (flatten(vowels) == 'uye') {
+            // chuyển
+            target = vowels[2];
+        } else {
+            // khuỷu
+            target = vowels[1];
+        }
     }
 
     return target;

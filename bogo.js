@@ -39,6 +39,21 @@ var MARKS_MAP = {
     'đ': "d___đ"
 }
 
+var MARK_CHARS = {
+    '^': Mark.HAT,
+    '(': Mark.BREVE,
+    '+': Mark.HORN,
+    '-': Mark.DASH
+};
+
+var TONE_CHARS = {
+    '~': Tone.TILDE,
+    "'": Tone.ACUTE,
+    '?': Tone.HOOK,
+    '`': Tone.GRAVE,
+    '.': Tone.DOT
+};
+
 function is_vowel(chr) {
     return VOWELS.indexOf(chr) != -1;
 }
@@ -170,6 +185,35 @@ function flatten(composition) {
     });
 
     return canvas.join('');
+}
+
+// parse_rule('a a a^') -> {type: Trans.MARK, effect: HAT, key: a, effective_on: a}
+// parse_rule('a w a(') -> {type: Trans.MARK, effect: BREVE, key: w, effective_on: a}
+// parse_rule('a f a`') -> {type: Trans.MARK, effect: HAT, key: a, effective_on: a}
+// parse_rule('w u+') -> {type: Trans.APPEND, effect: ư, key: w}
+function parse_rule(string) {
+    var tokens = string.trim().replace(/\s\s+/, ' ').split(' ');
+
+    var effective_on = tokens[0];
+    var key = tokens[1];
+
+    var effect_char = tokens[2][1];
+    if (effect_char in MARK_CHARS) {
+        var type = Trans.MARK;
+        var effect = MARK_CHARS[effect_char];
+    } else if (effect_char in TONE_CHARS) {
+        var type = Trans.TONE;
+        var effect = TONE_CHARS[effect_char];
+    }
+
+    var trans = {
+        type: type,
+        key: key,
+        effect: effect,
+        effective_on: effective_on
+    };
+
+    return trans;
 }
 
 (function main() {

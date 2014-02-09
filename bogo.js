@@ -60,12 +60,26 @@ function is_vowel(chr) {
 
 function add_mark_to_char(chr, mark) {
     var result = null;
+    var tone = get_tone_from_char(chr);
+    chr = add_tone_to_char(chr, Tone.NONE);
+
     if (chr in MARKS_MAP && MARKS_MAP[chr][mark] != '_') {
         result = MARKS_MAP[chr][mark];
     } else {
         result = chr;
     }
+
+    result = add_tone_to_char(result, tone);
     return result;
+}
+
+function get_tone_from_char(chr) {
+    var position = VOWELS.indexOf(chr);
+    if (position != -1) {
+        return position % 6;
+    } else {
+        return Tone.NONE;
+    }
 }
 
 function add_tone_to_char(chr, tone) {

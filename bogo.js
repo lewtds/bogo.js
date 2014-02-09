@@ -226,18 +226,31 @@ function flatten(composition) {
     var canvas = [];
 
     composition.forEach(function (trans, index) {
+
+        function apply_effect(func, trans) {
+            var index = trans.target.dest;
+            var char_with_effect = func(canvas[index], trans.rule.effect);
+
+            // Double typing an effect key undoes it. Btw, we're playing
+            // fast-and-loose here by relying on the fact that Tone.NONE equals
+            // Mark.None and equals 0.
+            if (char_with_effect == canvas[index]) {
+                canvas[index] = func(canvas[index], Tone.NONE);
+            } else {
+                canvas[index] = char_with_effect;
+            }
+        }
+
         switch (trans.rule.type) {
         case Trans.APPENDING:
             trans.dest = canvas.length;
             canvas.push(trans.rule.key);
             break;
         case Trans.MARK:
-            var index = trans.target.dest;
-            canvas[index] = add_mark_to_char(canvas[index], trans.rule.effect);
+            apply_effect(add_mark_to_char, trans);
             break;
         case Trans.TONE:
-            var index = trans.target.dest;
-            canvas[index] = add_tone_to_char(canvas[index], trans.rule.effect);
+            apply_effect(add_tone_to_char, trans);
             break;
         default:
             break;

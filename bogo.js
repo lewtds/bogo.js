@@ -131,6 +131,9 @@ function find_tone_target(composition, rule) {
 }
 
 function process_char(composition, chr, rules) {
+    var isUpperCase = chr === chr.toUpperCase();
+    chr = chr.toLowerCase();
+
     var applicable_rules = [];
     rules.forEach(function (rule) {
         if (rule.key == chr) {
@@ -142,7 +145,8 @@ function process_char(composition, chr, rules) {
         rule: {
             type: Trans.APPENDING,
             key: chr
-        }
+        },
+        isUpperCase: isUpperCase
     }
 
     for (var i = 0; i < applicable_rules.length; i++) {
@@ -183,6 +187,14 @@ function flatten(composition) {
             break;
         default:
             break;
+        }
+    });
+
+    composition.forEach(function (trans) {
+        if (trans.rule.type == Trans.APPENDING) {
+            if (trans.isUpperCase) {
+                canvas[trans.dest] = canvas[trans.dest].toUpperCase();
+            }
         }
     });
 

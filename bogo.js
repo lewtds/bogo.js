@@ -104,8 +104,8 @@ function find_rightmost_vowel_indexes(composition) {
 }
 
 function find_next_appending_trans(composition, from_index) {
-    for (var i = from_index; i < composition.length; i++) {
-        if (composition[i].rule.type ==  Trans.APPENDING) {
+    for (var i = from_index + 1; i < composition.length; i++) {
+        if (composition[i].rule.type == Trans.APPENDING) {
             return i;
         }
     }
@@ -116,16 +116,18 @@ function find_tone_target(composition, rule) {
     var vowel_indexes = find_rightmost_vowel_indexes(composition);
 
     if (vowel_indexes.length == 1) {
-        return composition[vowel_indexes[0]];
+        var target_index = vowel_indexes[0];
     } else if (vowel_indexes.length == 2) {
         if (find_next_appending_trans(composition, vowel_indexes[1]) != -1) {
-            return vowel_indexes[1];
+            var target_index = vowel_indexes[1];
         } else {
-            return vowel_indexes[0];
+            var target_index = vowel_indexes[0];
         }
     } else if (vowel_indexes.length == 3) {
-        return vowel_indexes[1];
+        var target_index = vowel_indexes[1];
     }
+
+    return composition[target_index];
 }
 
 function process_char(composition, chr, rules) {

@@ -104,20 +104,23 @@ function find_mark_target(composition, rule) {
     }
 }
 
-function find_rightmost_vowel_indexes(composition) {
-    var vowel_indexes = [];
+function find_rightmost_vowels(composition) {
+    var vowels = [];
     for (var i = composition.length - 1; i > -1 ; i--) {
         var trans = composition[i];
 
         if (trans.rule.type == Trans.APPENDING &&
             is_vowel(trans.rule.key)) {
-            vowel_indexes.unshift(i);
+            vowels.unshift(trans);
         }
     }
-    return vowel_indexes;
+    return vowels;
 }
 
-function find_next_appending_trans(composition, from_index) {
+function find_next_appending_trans(composition, trans) {
+    var from_index = composition.indexOf(trans);
+
+    // FIXME: Need not-found guard.
     for (var i = from_index + 1; i < composition.length; i++) {
         if (composition[i].rule.type == Trans.APPENDING) {
             return i;
@@ -127,21 +130,21 @@ function find_next_appending_trans(composition, from_index) {
 }
 
 function find_tone_target(composition, rule) {
-    var vowel_indexes = find_rightmost_vowel_indexes(composition);
+    var vowels = find_rightmost_vowels(composition);
 
-    if (vowel_indexes.length == 1) {
-        var target_index = vowel_indexes[0];
-    } else if (vowel_indexes.length == 2) {
-        if (find_next_appending_trans(composition, vowel_indexes[1]) != -1) {
-            var target_index = vowel_indexes[1];
+    if (vowels.length == 1) {
+        var target = vowels[0];
+    } else if (vowels.length == 2) {
+        if (find_next_appending_trans(composition, vowels[1]) != -1) {
+            var target = vowels[1];
         } else {
-            var target_index = vowel_indexes[0];
+            var target = vowels[0];
         }
-    } else if (vowel_indexes.length == 3) {
-        var target_index = vowel_indexes[1];
+    } else if (vowels.length == 3) {
+        var target = vowels[1];
     }
 
-    return composition[target_index];
+    return target;
 }
 
 function refresh_last_tone_target(composition) {

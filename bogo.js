@@ -187,6 +187,16 @@ function flatten(composition) {
     return canvas.join('');
 }
 
+function process_string(string, rules) {
+    var composition = [];
+
+    for (var i = 0; i < string.length; i++) {
+        process_char(composition, string[i], rules);
+    };
+
+    return flatten(composition);
+}
+
 // parse_rule('a a a^') -> {type: Trans.MARK, effect: HAT, key: a, effective_on: a}
 // parse_rule('a w a(') -> {type: Trans.MARK, effect: BREVE, key: w, effective_on: a}
 // parse_rule('a f a`') -> {type: Trans.MARK, effect: HAT, key: a, effective_on: a}

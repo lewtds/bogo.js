@@ -213,6 +213,26 @@ function process_char(composition, chr, rules) {
 
     composition.push(trans);
 
+    // Implement the uow typing shortcut by creating a virtual
+    // Mark.HORN rule that targets 'u'.
+    //
+    // FIXME: This is a potential slowdown. Perhaps it should be
+    //        toggled by a config key.
+    if (flatten(composition).match(/uơ.+$/)) {
+        var vowels = find_rightmost_vowels(composition);
+        var virtual_trans = {
+            rule: {
+                type: Trans.MARK,
+                key: '', // This is a virtual rule,
+                         // it should not appear in the raw string.
+                effect: Mark.HORN
+            },
+            target: vowels[0]
+        };
+
+        composition.push(virtual_trans);
+    }
+
     // Sometimes, a tone's position in a previous state must be changed to
     // fit the new state.
     //

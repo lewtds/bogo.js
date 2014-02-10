@@ -382,5 +382,20 @@ function BoGo () {
     function clear_rules() {
         rules = [];
     }
+
+    var exports = {
+        add_rule:  function(rule_string) {
+            rules.push(parse_rule(rule_string));
+        },
+        clear_rules:          clear_rules,
+        process_char:         process_char,
+        process_string:       process_string,
+        process_backspace:    process_backspace,
+        clear_composition:    clear_composition,
+        get_processed_string: flatten,
+        get_raw_input_string: get_raw_input_string,
+    };
+
+    return exports;
 };
 

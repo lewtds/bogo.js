@@ -1,4 +1,4 @@
-var BoGo = (function () {
+function BoGo () {
     var Trans = {
         APPENDING: 0,
         MARK: 1,
@@ -343,4 +343,5 @@ var BoGo = (function () {
         return trans;
     }
 
-}());
+};
+

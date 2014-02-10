@@ -1,5 +1,5 @@
 function BoGo () {
-    var Trans = {
+    var EffectType = {
         APPENDING: 0,
         MARK: 1,
         TONE: 2
@@ -115,7 +115,7 @@ function BoGo () {
         for (var i = composition.length - 1; i > -1 ; i--) {
             var trans = composition[i];
 
-            if (trans.rule.type == Trans.APPENDING &&
+            if (trans.rule.type == EffectType.APPENDING &&
                 is_vowel(trans.rule.key)) {
                 vowels.unshift(trans);
             }
@@ -129,7 +129,7 @@ function BoGo () {
 
         // FIXME: Need not-found guard.
         for (var i = from_index + 1; i < composition.length; i++) {
-            if (composition[i].rule.type == Trans.APPENDING) {
+            if (composition[i].rule.type == EffectType.APPENDING) {
                 next_appending_trans = composition[i];
             }
         }
@@ -167,10 +167,10 @@ function BoGo () {
     }
 
     function refresh_last_tone_target() {
-        // Refresh the tone position of the last Trans.TONE transformation.
+        // Refresh the tone position of the last EffectType.TONE transformation.
         for (var i = composition.length - 1; i >= 0; i--) {
             var trans = composition[i];
-            if (trans.rule.type == Trans.TONE) {
+            if (trans.rule.type == EffectType.TONE) {
                 var new_target = find_tone_target(trans.rule);
                 trans.target = new_target;
                 break;
@@ -193,7 +193,7 @@ function BoGo () {
         // transformation fallbacks to an APPENDING one.
         var trans = {
             rule: {
-                type: Trans.APPENDING,
+                type: EffectType.APPENDING,
                 key: chr
             },
             isUpperCase: isUpperCase
@@ -201,9 +201,9 @@ function BoGo () {
 
         for (var i = 0; i < applicable_rules.length; i++) {
             var rule = applicable_rules[i];
-            if (rule.type == Trans.MARK) {
+            if (rule.type == EffectType.MARK) {
                 var target = find_mark_target(rule);
-            } else if (rule.type == Trans.TONE) {
+            } else if (rule.type == EffectType.TONE) {
                 var target = find_tone_target(rule);
             }
 
@@ -238,7 +238,7 @@ function BoGo () {
             var vowels = find_rightmost_vowels();
             var virtual_trans = {
                 rule: {
-                    type: Trans.MARK,
+                    type: EffectType.MARK,
                     key: '', // This is a virtual rule,
                              // it should not appear in the raw string.
                     effect: Mark.HORN
@@ -255,7 +255,7 @@ function BoGo () {
         // e.g.
         // prev state: chuyenr  -> chuỷen
         // this state: chuyenre -> chuyển
-        if (trans.rule.type == Trans.APPENDING) {
+        if (trans.rule.type == EffectType.APPENDING) {
             refresh_last_tone_target();
         }
     }
@@ -280,14 +280,14 @@ function BoGo () {
             }
 
             switch (trans.rule.type) {
-            case Trans.APPENDING:
+            case EffectType.APPENDING:
                 trans.dest = canvas.length;
                 canvas.push(trans.rule.key);
                 break;
-            case Trans.MARK:
+            case EffectType.MARK:
                 apply_effect(add_mark_to_char, trans);
                 break;
-            case Trans.TONE:
+            case EffectType.TONE:
                 apply_effect(add_tone_to_char, trans);
                 break;
             default:
@@ -296,7 +296,7 @@ function BoGo () {
         });
 
         composition.forEach(function (trans) {
-            if (trans.rule.type == Trans.APPENDING) {
+            if (trans.rule.type == EffectType.APPENDING) {
                 if (trans.isUpperCase) {
                     canvas[trans.dest] = canvas[trans.dest].toUpperCase();
                 }
@@ -312,10 +312,10 @@ function BoGo () {
         };
     }
 
-    // parse_rule('a a a^') -> {type: Trans.MARK, effect: HAT, key: a, effective_on: a}
-    // parse_rule('a w a(') -> {type: Trans.MARK, effect: BREVE, key: w, effective_on: a}
-    // parse_rule('a f a`') -> {type: Trans.MARK, effect: HAT, key: a, effective_on: a}
-    // parse_rule('w u+') -> {type: Trans.APPEND, effect: ư, key: w}
+    // parse_rule('a a a^') -> {type: EffectType.MARK, effect: HAT, key: a, effective_on: a}
+    // parse_rule('a w a(') -> {type: EffectType.MARK, effect: BREVE, key: w, effective_on: a}
+    // parse_rule('a f a`') -> {type: EffectType.MARK, effect: HAT, key: a, effective_on: a}
+    // parse_rule('w u+') -> {type: EffectType.APPEND, effect: ư, key: w}
     function parse_rule(string) {
         var tokens = string.trim().replace(/\s\s+/, ' ').split(' ');
 
@@ -324,10 +324,10 @@ function BoGo () {
 
         var effect_char = tokens[2][1];
         if (effect_char in MARK_CHARS) {
-            var type = Trans.MARK;
+            var type = EffectType.MARK;
             var effect = MARK_CHARS[effect_char];
         } else if (effect_char in TONE_CHARS) {
-            var type = Trans.TONE;
+            var type = EffectType.TONE;
             var effect = TONE_CHARS[effect_char];
         }
 
@@ -349,7 +349,7 @@ function BoGo () {
         // the transformations that add effects to it.
         for (var i = composition.length - 1; i >= 0; i--) {
             var trans = composition[i];
-            if (trans.rule.type == Trans.APPENDING) {
+            if (trans.rule.type == EffectType.APPENDING) {
                 last_appending_trans = trans;
                 indexes_to_remove.push(i);
                 break;

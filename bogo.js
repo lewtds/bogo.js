@@ -387,6 +387,10 @@ function BoGo () {
         rules = [];
     }
 
+    function has_composition() {
+        return composition.length !== 0;
+    }
+
     var exports = {
         add_rule:  function(rule_string) {
             rules.push(parse_rule(rule_string));
@@ -398,6 +402,7 @@ function BoGo () {
         clear_composition:    clear_composition,
         get_processed_string: flatten,
         get_raw_input_string: get_raw_input_string,
+        has_composition:      has_composition
     };
 
     return exports;

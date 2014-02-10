@@ -349,21 +349,25 @@ function BoGo () {
         // the transformations that add effects to it.
         for (var i = composition.length - 1; i >= 0; i--) {
             var trans = composition[i];
-            if (last_appending_trans === undefined) {
-                if (trans.rule.type == Trans.APPENDING) {
-                    last_appending_trans = trans;
-                    indexes_to_remove.push(i);
-                    break;
-                }
-            } else if (trans.hasOwnProperty('target' &&
-                       trans.target === last_appending_trans)) {
+            if (trans.rule.type == Trans.APPENDING) {
+                last_appending_trans = trans;
+                indexes_to_remove.push(i);
+                break;
+            }
+        };
+
+        for (var i = indexes_to_remove[0] + 1; i < composition.length; i++) {
+            var trans = composition[i];
+            if (trans.hasOwnProperty('target') &&
+                trans.target === last_appending_trans) {
                 indexes_to_remove.push(i);
             }
         };
 
         // Then remove them
+        indexes_to_remove.sort().reverse();
         indexes_to_remove.forEach(function (index) {
-            composition.splice(i, 1);
+            composition.splice(index, 1);
         });
     }
 
@@ -398,4 +402,3 @@ function BoGo () {
 
     return exports;
 };
-

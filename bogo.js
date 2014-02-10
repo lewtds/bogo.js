@@ -343,5 +343,20 @@ function BoGo () {
         return trans;
     }
 
+    function get_raw_input_string() {
+        var raw_input_keys = [];
+        composition.forEach(function (trans) {
+            raw_input_keys.push(trans.rule.key);
+        });
+        return raw_input_keys.join('');
+    }
+
+    function clear_composition() {
+        composition = [];
+    }
+
+    function clear_rules() {
+        rules = [];
+    }
 };
 

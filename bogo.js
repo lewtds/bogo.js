@@ -25,6 +25,9 @@ var BoGo = (function () {
     var VOWELS = "aàáảãạăằắẳẵặâầấẩẫậeèéẻẽẹêềếểễệiìíỉĩị" +
                  "oòóỏõọôồốổỗộơờớởỡợuùúủũụưừứửữựyỳýỷỹỵ";
 
+    var composition = [];
+    var rules       = [];
+
     var MARKS_MAP = {
         'a': "aâă__",
         'â': "aâă__",
@@ -97,7 +100,7 @@ var BoGo = (function () {
         return result;
     }
 
-    function find_mark_target(composition, rule) {
+    function find_mark_target(rule) {
         var target = null;
         for (var i = composition.length - 1; i > -1; i--) {
             if (composition[i].rule.key == rule.effective_on) {
@@ -107,7 +110,7 @@ var BoGo = (function () {
         return target;
     }
 
-    function find_rightmost_vowels(composition) {
+    function find_rightmost_vowels() {
         var vowels = [];
         for (var i = composition.length - 1; i > -1 ; i--) {
             var trans = composition[i];
@@ -120,7 +123,7 @@ var BoGo = (function () {
         return vowels;
     }
 
-    function find_next_appending_trans(composition, trans) {
+    function find_next_appending_trans(trans) {
         var from_index = composition.indexOf(trans);
         var next_appending_trans = null;
 
@@ -134,15 +137,15 @@ var BoGo = (function () {
         return next_appending_trans;
     }
 
-    function find_tone_target(composition, rule) {
-        var vowels = find_rightmost_vowels(composition);
+    function find_tone_target(rule) {
+        var vowels = find_rightmost_vowels();
         var target = null;
 
         if (vowels.length == 1) {
             // cá
             target = vowels[0];
         } else if (vowels.length == 2) {
-            if (find_next_appending_trans(composition, vowels[1]) != null ||
+            if (find_next_appending_trans(vowels[1]) != null ||
                 flatten(vowels) == 'uo') {
                 // nước, thuở
                 target = vowels[1];
@@ -163,19 +166,19 @@ var BoGo = (function () {
         return target;
     }
 
-    function refresh_last_tone_target(composition) {
+    function refresh_last_tone_target() {
         // Refresh the tone position of the last Trans.TONE transformation.
         for (var i = composition.length - 1; i >= 0; i--) {
             var trans = composition[i];
             if (trans.rule.type == Trans.TONE) {
-                var new_target = find_tone_target(composition, trans.rule);
+                var new_target = find_tone_target(trans.rule);
                 trans.target = new_target;
                 break;
             }
         };
     }
 
-    function process_char(composition, chr, rules) {
+    function process_char(chr) {
         var isUpperCase = chr === chr.toUpperCase();
         chr = chr.toLowerCase();
 
@@ -199,9 +202,9 @@ var BoGo = (function () {
         for (var i = 0; i < applicable_rules.length; i++) {
             var rule = applicable_rules[i];
             if (rule.type == Trans.MARK) {
-                var target = find_mark_target(composition, rule);
+                var target = find_mark_target(rule);
             } else if (rule.type == Trans.TONE) {
-                var target = find_tone_target(composition, rule);
+                var target = find_tone_target(rule);
             }
 
             if (target != undefined) {
@@ -231,8 +234,8 @@ var BoGo = (function () {
         //
         // FIXME: This is a potential slowdown. Perhaps it should be
         //        toggled by a config key.
-        if (flatten(composition).match(/uơ.+$/)) {
-            var vowels = find_rightmost_vowels(composition);
+        if (flatten().match(/uơ.+$/)) {
+            var vowels = find_rightmost_vowels();
             var virtual_trans = {
                 rule: {
                     type: Trans.MARK,
@@ -253,11 +256,11 @@ var BoGo = (function () {
         // prev state: chuyenr  -> chuỷen
         // this state: chuyenre -> chuyển
         if (trans.rule.type == Trans.APPENDING) {
-            refresh_last_tone_target(composition);
+            refresh_last_tone_target();
         }
     }
 
-    function flatten(composition) {
+    function flatten() {
         var canvas = [];
 
         composition.forEach(function (trans, index) {
@@ -303,11 +306,9 @@ var BoGo = (function () {
         return canvas.join('');
     }
 
-    function process_string(string, rules) {
-        var composition = [];
-
+    function process_string(string) {
         for (var i = 0; i < string.length; i++) {
-            process_char(composition, string[i], rules);
+            process_char(string[i]);
         };
 
         return flatten(composition);

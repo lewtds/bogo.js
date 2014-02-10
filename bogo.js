@@ -310,8 +310,6 @@ function BoGo () {
         for (var i = 0; i < string.length; i++) {
             process_char(string[i]);
         };
-
-        return flatten(composition);
     }
 
     // parse_rule('a a a^') -> {type: Trans.MARK, effect: HAT, key: a, effective_on: a}

@@ -234,7 +234,7 @@ function BoGo () {
         //
         // FIXME: This is a potential slowdown. Perhaps it should be
         //        toggled by a config key.
-        if (flatten().match(/uơ.+$/)) {
+        if (flatten().test(/uơ.+$/)) {
             var vowels = find_rightmost_vowels();
             var virtual_trans = {
                 rule: {
